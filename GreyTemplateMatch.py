@@ -1,0 +1,45 @@
+from MouseCatchTemplate import catchtemplate
+import numpy as np
+import cv2 as cv
+import os
+
+imgNum = input('请输入检测图片的数量：')
+methodNum = input('请输入检测函数编号（0-5）:')
+methodNum = int(methodNum)
+#imgParDir = 'ExpPic/car/'
+imgParDir = 'ExpPic/plane'
+imgDirList = []
+methods = ['cv.TM_CCOEFF', 'cv.TM_CCOEFF_NORMED', 'cv.TM_CCORR',
+            'cv.TM_CCORR_NORMED', 'cv.TM_SQDIFF', 'cv.TM_SQDIFF_NORMED']
+
+for info in os.listdir(imgParDir):
+    imgDirList.append(os.path.join(imgParDir, info))
+imgDirList.sort()
+
+src = cv.imread(imgDirList[0])
+template = catchtemplate(src)
+if len(template.shape) == 3:
+    channels, w, h = template.shape[::-1]
+else:
+    w, h = template[::-1]
+
+for i in imgDirList:
+    img = cv.imread(i)
+    res = cv.matchTemplate(img, template, eval(methods[methodNum]))
+    minVal, maxVal, minLoc, maxLoc = cv.minMaxLoc(res)
+
+    if methods[methodNum] in [cv.TM_SQDIFF, cv.TM_SQDIFF_NORMED]:
+        topLeft = minLoc
+    else:
+        topLeft = maxLoc
+    bottomRight = (topLeft[0] + w, topLeft[1] + h)
+
+    cv.rectangle(img, topLeft, bottomRight, (0, 255, 0), 1)
+   
+    cv.namedWindow('grey')
+    cv.imshow('grey', res)
+    cv.namedWindow(i)
+    cv.imshow(i, img)
+    cv.waitKey(0)
+
+    
