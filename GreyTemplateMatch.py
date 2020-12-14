@@ -1,3 +1,6 @@
+'''
+手动选择模版，实现基于灰度的模版匹配方法
+'''
 from MouseCatchTemplate import catchtemplate
 import numpy as np
 import cv2 as cv
@@ -12,18 +15,21 @@ imgDirList = []
 methods = ['cv.TM_CCOEFF', 'cv.TM_CCOEFF_NORMED', 'cv.TM_CCORR',
             'cv.TM_CCORR_NORMED', 'cv.TM_SQDIFF', 'cv.TM_SQDIFF_NORMED']
 
+# 批量读取某一文件夹下的所有文件
 for info in os.listdir(imgParDir):
     imgDirList.append(os.path.join(imgParDir, info))
 imgDirList.sort()
 
 src = cv.imread(imgDirList[0])
 template = catchtemplate(src)
+# 提取模版宽和高
 if len(template.shape) == 3:
     channels, w, h = template.shape[::-1]
 else:
     w, h = template[::-1]
 
 for i in imgDirList:
+    # 对每一张图片进行全局模版匹配
     img = cv.imread(i)
     res = cv.matchTemplate(img, template, eval(methods[methodNum]))
     minVal, maxVal, minLoc, maxLoc = cv.minMaxLoc(res)
