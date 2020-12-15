@@ -9,8 +9,8 @@ import os
 imgNum = input('请输入检测图片的数量：')
 methodNum = input('请输入检测函数编号（0-5）:')
 methodNum = int(methodNum)
-#imgParDir = 'ExpPic/car/'
-imgParDir = 'ExpPic/plane'
+imgParDir = 'ExpPic/car/'
+#imgParDir = 'ExpPic/plane'
 imgDirList = []
 methods = ['cv.TM_CCOEFF', 'cv.TM_CCOEFF_NORMED', 'cv.TM_CCORR',
             'cv.TM_CCORR_NORMED', 'cv.TM_SQDIFF', 'cv.TM_SQDIFF_NORMED']
@@ -22,6 +22,7 @@ imgDirList.sort()
 
 src = cv.imread(imgDirList[0])
 template = catchtemplate(src)
+template = cv.imread('template.png')
 # 提取模版宽和高
 if len(template.shape) == 3:
     channels, w, h = template.shape[::-1]
