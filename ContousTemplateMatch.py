@@ -39,19 +39,20 @@ for i in imgDirList:
     gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
     dxy = SobelNormalize(gray)
     
-    print(dxy.dtype)
-    print(sobelTemplate.dtype)
-    res = cv.matchTemplate(dxy, templateDxy, eval(methods[methodNum]))
-    minVal, maxVal, minLoc, maxLoc = cv.minMaxLoc(res)
+    # res = cv.matchTemplate(dxy, templateDxy, eval(methods[methodNum]))
+    for index, i in enumerate(methods):
+        res = cv.matchTemplate(dxy, templateDxy, eval(i))
+        minVal, maxVal, minLoc, maxLoc = cv.minMaxLoc(res)
 
-    if methods[methodNum] in [cv.TM_SQDIFF, cv.TM_SQDIFF_NORMED]:
-        topLeft = minLoc
-    else:
-        topLeft = maxLoc
-    w, h = grayTemplate.shape[::-1]
-    bottomRight = (topLeft[0] + w, topLeft[1] + h)
+        if methods[methodNum] in [cv.TM_SQDIFF, cv.TM_SQDIFF_NORMED]:
+            topLeft = minLoc
+        else:
+            topLeft = maxLoc
+        w, h = grayTemplate.shape[::-1]
+        bottomRight = (topLeft[0] + w, topLeft[1] + h)
 
-    cv.rectangle(img, topLeft, bottomRight, (0, 255, 0), 1)
+        cv.rectangle(img, topLeft, bottomRight, (0, 255, 0), 1)
+        cv.putText(img, str(index), topLeft, cv.FONT_HERSHEY_PLAIN, 1, (255, 0, 0))
    
     cv.namedWindow('grey')
     cv.imshow('grey', res)
