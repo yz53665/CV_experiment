@@ -1,3 +1,6 @@
+'''
+实现基于边缘特征的模版匹配
+'''
 from MouseCatchTemplate import catchtemplate
 import matplotlib.pyplot as plt
 import numpy as np

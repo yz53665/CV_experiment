@@ -1,3 +1,6 @@
+'''
+实现手动选取并保存模版
+'''
 import cv2
 import copy
 import numpy as np 

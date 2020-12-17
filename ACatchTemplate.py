@@ -1,3 +1,6 @@
+'''
+实现自动检测汽车并保存模版
+'''
 import numpy as np
 import cv2
 
