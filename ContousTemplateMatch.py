@@ -23,12 +23,16 @@ imgDirList.sort()
 # template = catchtemplate(src)
 template = cv.imread('template.png')
 grayTemplate = cv.cvtColor(template, cv.COLOR_BGR2GRAY)
-thr, templateBinary = cv.threshold(grayTemplate, 0, 255, cv.THRESH_OTSU)
+templateBinary = cv.Canny(grayTemplate, 50, 150)
+cv.imshow('template', templateBinary)
+cv.waitKey(0)
 
 for i in imgDirList:
     img = cv.imread(i)
     gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
-    thr, srcBinary = cv.threshold(gray, 0, 255, cv.THRESH_OTSU)
+    srcBinary = cv.Canny(gray, 50, 150)
+    cv.imshow('src', srcBinary)
+    cv.waitKey(0)
     
     res = cv.matchTemplate(srcBinary, templateBinary, eval(methods[methodNum]))
     minVal, maxVal, minLoc, maxLoc = cv.minMaxLoc(res)

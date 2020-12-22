@@ -10,15 +10,18 @@ src = 0
 prePoint = 0
 curPoint = 0
 template = 0
+mask = 0
 
 def mousehandle(event, x, y, flags, usrDat):
     global src
     global prePoint
     global curPoint
     global template
+    global mask
     img = copy.copy(src)
     tmpImg = copy.copy(src)
     template = copy.copy(src)
+    mask = np.zeros(src.shape[0:2])
     if event == cv2.EVENT_LBUTTONDOWN:
         img = copy.copy(src)
         prePoint = (int(x),int(y))
@@ -29,6 +32,7 @@ def mousehandle(event, x, y, flags, usrDat):
         x1, y1 = prePoint
         x2, y2 = curPoint
         template = template[y1:y2, x1:x2]
+        cv2.rectangle(mask, prePoint, curPoint, (255, 255, 255), cv2.FILLED, cv2.LINE_AA)
         cv2.imwrite("template.png", template)
         cv2.namedWindow('template', cv2.WINDOW_NORMAL)
         cv2.imshow('template', template)
@@ -50,6 +54,8 @@ def mousehandle(event, x, y, flags, usrDat):
 # 实现手动提取模版
 def catchtemplate(Image):
     global src
+    global mask
+    global template
     src = Image
     if src.size == 0:
         print("error opining image" )
@@ -58,8 +64,11 @@ def catchtemplate(Image):
     cv2.setMouseCallback('source', mousehandle)
     cv2.imshow('source', src)
     cv2.waitKey(0)
+    cv2.imshow('mask', mask)
+    cv2.waitKey(0)
     cv2.destroyAllWindows()
-    return template
+    mask = mask.astype(np.uint8)
+    return template, mask
 
 if __name__ == '__main__':
     src = cv2.imread('ExpPic/plane/P000.bmp')
