@@ -35,6 +35,7 @@ for i in imgDirList:
     cv.waitKey(0)
     
     res = cv.matchTemplate(srcBinary, templateBinary, eval(methods[methodNum]))
+    cv.normalize(res, res, 0, 1, cv.NORM_MINMAX, -1)
     minVal, maxVal, minLoc, maxLoc = cv.minMaxLoc(res)
 
     if methods[methodNum] in [cv.TM_SQDIFF, cv.TM_SQDIFF_NORMED]:

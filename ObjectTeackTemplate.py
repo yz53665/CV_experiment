@@ -1,5 +1,5 @@
 '''
-实现基于Harris角点的LK金字塔稀疏光流跟踪与卡尔曼滤波
+实现基于卡尔曼滤波
 '''
 from MouseCatchTemplate import catchtemplate
 import numpy as np

@@ -53,6 +53,7 @@ for i in imgDirList:
     # res = cv.matchTemplate(dxy, templateDxy, eval(methods[methodNum]))
     for index, i in enumerate(methods):
         res = cv.matchTemplate(dxy, templateDxy, eval(i))
+        cv.normalize(res, res, 0, 1, cv.NORM_MINMAX, -1)
         minVal, maxVal, minLoc, maxLoc = cv.minMaxLoc(res)
 
         if methods[methodNum] in [cv.TM_SQDIFF, cv.TM_SQDIFF_NORMED]:
