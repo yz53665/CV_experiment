@@ -1,7 +1,8 @@
-'''
-实现基于卡尔曼滤波
+'
+实现基于Canny算子的边缘轮廓特征的模版匹配
 '''
 from MouseCatchTemplate import catchtemplate
+import matplotlib.pyplot as plt
 import numpy as np
 import cv2 as cv
 import os
@@ -15,43 +16,41 @@ imgDirList = []
 methods = ['cv.TM_CCOEFF', 'cv.TM_CCOEFF_NORMED', 'cv.TM_CCORR',
             'cv.TM_CCORR_NORMED', 'cv.TM_SQDIFF', 'cv.TM_SQDIFF_NORMED']
 
-# 批量读取某一文件夹下的所有文件
 for info in os.listdir(imgParDir):
     imgDirList.append(os.path.join(imgParDir, info))
 imgDirList.sort()
 
-src = cv.imread(imgDirList[0])
-gray = cv.cvtColor(src, cv.COLOR_BGR2GRAY)
-template, mask = catchtemplate(src)
-#template = cv.imread('template.png')
-
-points = cv.goodFeaturesToTrack(gray, 5, 0.1, 10, mask=mask)
-for i in points:
-    x, y = i.ravel()
-    cv.circle(src, (x, y), 2, (255, 0, 0))
-cv.imshow('src', src)
+# template = catchtemplate(src)
+template = cv.imread('template.png')
+grayTemplate = cv.cvtColor(template, cv.COLOR_BGR2GRAY)
+templateBinary = cv.Canny(grayTemplate, 50, 150)
+cv.imshow('template', templateBinary)
 cv.waitKey(0)
 
 for i in imgDirList:
     img = cv.imread(i)
     gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
-    points = cv.goodFeaturesToTrack(gray, 25, 0.01, 10)
+    srcBinary = cv.Canny(gray, 50, 150)
+    cv.imshow('src', srcBinary)
+    cv.waitKey(0)
+    
+    res = cv.matchTemplate(srcBinary, templateBinary, eval(methods[methodNum]))
+    cv.normalize(res, res, 0, 1, cv.NORM_MINMAX, -1)
+    minVal, maxVal, minLoc, maxLoc = cv.minMaxLoc(res)
 
-    #  res = cv.matchTemplate(img, template, eval(methods[methodnum]))
-    #  minval, maxval, minloc, maxloc = cv.minmaxloc(res)
-    #
-    #  if methods[methodnum] in [cv.tm_sqdiff, cv.tm_sqdiff_normed]:
-    #      topleft = minloc
-    #  else:
-    #      topleft = maxloc
-    #  bottomright = (topleft[0] + w, topleft[1] + h)
-    #
-    #  cv.rectangle(img, topleft, bottomright, (0, 255, 0), 1)
- #
-    #  cv.namedwindow('grey')
-    #  cv.imshow('grey', res)
-    #  cv.namedwindow(i)
-    #  cv.imshow(i, img)
-    #  cv.waitkey(0)
-    #
-   #
+    if methods[methodNum] in [cv.TM_SQDIFF, cv.TM_SQDIFF_NORMED]:
+        topLeft = minLoc
+    else:
+        topLeft = maxLoc
+
+    w, h = grayTemplate.shape[::-1]
+    bottomRight = (topLeft[0] + w, topLeft[1] + h)
+
+    cv.rectangle(img, topLeft, bottomRight, (0, 255, 0), 1)
+
+    cv.namedWindow('grey')
+    cv.imshow('grey', res)
+    cv.namedWindow(i)
+    cv.imshow(i, img)
+    cv.waitKey(0)
+

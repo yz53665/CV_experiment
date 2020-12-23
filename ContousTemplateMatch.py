@@ -1,5 +1,5 @@
 '''
-实现基于边缘轮廓特征的模版匹配
+实现基于Canny算子的边缘轮廓特征的模版匹配
 '''
 from MouseCatchTemplate import catchtemplate
 import matplotlib.pyplot as plt

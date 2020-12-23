@@ -23,7 +23,7 @@ imgDirList = imgDirList[0:int(imgNum)]
 
 src = cv.imread(imgDirList[0])
 template, mask = catchtemplate(src)
-template = cv.imread('template.png')
+# template = cv.imread('template.png')
 grayTemplate = cv.cvtColor(template, cv.COLOR_BGR2GRAY)
 # 提取模版宽和高
 if len(template.shape) == 3:
