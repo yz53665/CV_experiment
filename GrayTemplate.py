@@ -25,11 +25,14 @@ src = cv.imread(imgDirList[0])
 template, mask = catchtemplate(src)
 # template = cv.imread('template.png')
 grayTemplate = cv.cvtColor(template, cv.COLOR_BGR2GRAY)
+
+
 # 提取模版宽和高
 if len(template.shape) == 3:
     channels, w, h = template.shape[::-1]
 else:
     w, h = template[::-1]
+
 
 for i in imgDirList:
     # 对每一张图片进行全局模版匹配
