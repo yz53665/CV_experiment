@@ -1,5 +1,5 @@
 '''
-实现基于Canny算子的边缘轮廓特征的模版匹配
+实现基于卡尔曼滤波的边缘轮廓特征的物体预测与模版匹配
 '''
 from MouseCatchTemplate import catchtemplate
 import matplotlib.pyplot as plt
@@ -21,11 +21,10 @@ def GetCanny(img):
     canny = cv.Canny(img, 50, 150)
     return canny
 
-def GetCannyMatch(cannyImg, cannyTemplate, method):
+def CannyMatch(cannyImg, cannyTemplate, method):
     res = cv.matchTemplate(cannyImg, cannyTemplate, method)
     cv.normalize(res, res, 0, 1, cv.NORM_MINMAX, -1)
-    minVal, maxVal, minLoc, maxLoc = cv.minMaxLoc(res)
-    return minVal, maxVal, minLoc, maxLoc
+    return res
 
 class Kalman2D(object):
 
@@ -59,6 +58,34 @@ class Kalman2D(object):
     def getPredict(self):
         return int(self.predicted[0,0]), int(self.corrected[1,0])
 
+
+def GetSmallerSrc(src, prePoint, w, h):
+    newSrc = src[prePoint[1]:prePoint[1] + 3 * h, prePoint[0]:prePoint[0] + 3 * w]
+    return newSrc
+
+
+def PartialMatch(src, template, pEstimate, method):
+    w, h = template.shape[::-1]
+    prePoint = (pEstimate[0] - 0.2 * w, pEstimate[1] - 0.2*h)
+    prePoint = np.asarray(prePoint, dtype=np.int16)
+    if any(prePoint < 0):   # 判断是否超出边界
+        res = CannyMatch(src, template, method)
+    else:
+        newSrc = GetSmallerSrc(src, pEstimate, w, h)
+        res = CannyMatch(newSrc, template, method)
+    return res, prePoint
+
+
+def PartialTemplateMatch(src, template, pEstimate, method, turn):
+    if turn > 3:
+        res, prePoint = PartialMatch(src, template, pEstimate, method)
+    else:
+        res = CannyMatch(src, template, method)    
+        prePoint = [0,0]
+    prePoint = np.asarray(prePoint)
+    return res, prePoint
+
+
 for info in os.listdir(imgParDir):
     imgDirList.append(os.path.join(imgParDir, info))
 imgDirList.sort()
@@ -68,30 +95,45 @@ src = cv.imread(imgDirList[0])
 template, mask = catchtemplate(src)
 cannyTemplate = GetCanny(template)
 
-kal = Kalman2D()
+kal = Kalman2D(processNoise=7e-2, measurementNoise=1e-2,error=0.5)
+kal.update(0, 0)
 
-for i in imgDirList:
+for index, i in enumerate(imgDirList):
     img = cv.imread(i)
     cannySrc = GetCanny(img)
-    minVal, maxVal, minLoc, maxLoc = GetCannyMatch(cannySrc, cannyTemplate, eval(methods[methodNum]))
+    w, h = cannyTemplate.shape[::-1]
+
+    predict = kal.getPredict()
+    estimate = kal.getEstimate()
+
+    # 进行对轨迹的预测与局部模版提取
+    res, prePoint = PartialTemplateMatch(cannySrc, cannyTemplate, estimate ,eval(methods[methodNum]), index)
+    curPoint = (prePoint[0] + 2*w, prePoint[1] + 2*h)
+    minVal, maxVal, minLoc, maxLoc = cv.minMaxLoc(res)
+    # 全局模版匹配
+    res2 = cv.matchTemplate(cannySrc, cannyTemplate, eval(methods[methodNum]))
+    minVal2, maxVal2, minLoc2, maxLoc2 = cv.minMaxLoc(res2)
 
     if methods[methodNum] in [cv.TM_SQDIFF, cv.TM_SQDIFF_NORMED]:
         topLeft = minLoc
+        topLeft2 = minLoc2
     else:
         topLeft = maxLoc
+        topLeft2 = maxLoc2
+
+    topLeft = topLeft + prePoint
     
-    kal.update(topLeft[0], topLeft[1])
-    predict = kal.getPredict()
-    estimate = kal.getEstimate()
-    
-    w, h =cannyTemplate.shape[::-1]
     bottomRight = (topLeft[0] + w, topLeft[1] + h)
-    predictBottom = (predict[0] + w, predict[1] + h)
-    estimateBottom = (estimate[0] + w, estimate[1] + h)
+    bottomRight2 = (topLeft2[0] + w, topLeft2[1] + h)
+    topLeft = (topLeft[0], topLeft[1])
+    prePoint = (prePoint[0], prePoint[1])
     
     cv.rectangle(img, topLeft, bottomRight, (0, 255, 0), 1) #当前位置标记绿色
-    cv.rectangle(img, predict, predictBottom, (0, 0, 255), 1)   #预测下一帧位置标记红色
-    cv.rectangle(img, estimate, estimateBottom, (255, 0, 0), 1) #估计当前位置标记蓝色
+    cv.rectangle(img, topLeft2, bottomRight2, (255, 0, 0), 1) #全局模版匹配标记绿色
+    if index > 2:
+        cv.rectangle(img, prePoint, curPoint, (0, 0, 255), 1)   #画出用于局部匹配模版的区域
+
+    kal.update(topLeft[0], topLeft[1])
 
     cv.namedWindow(i)
     cv.imshow(i, img)
