@@ -60,7 +60,7 @@ class Kalman2D(object):
 
 
 def GetSmallerSrc(src, prePoint, w, h):
-    newSrc = src[prePoint[1]:prePoint[1] + 3 * h, prePoint[0]:prePoint[0] + 3 * w]
+    newSrc = src[prePoint[1]:prePoint[1] + 2 * h, prePoint[0]:prePoint[0] + 2 * w]
     return newSrc
 
 
@@ -71,7 +71,7 @@ def PartialMatch(src, template, pEstimate, method):
     if any(prePoint < 0):   # 判断是否超出边界
         res = CannyMatch(src, template, method)
     else:
-        newSrc = GetSmallerSrc(src, pEstimate, w, h)
+        newSrc = GetSmallerSrc(src, prePoint, w, h)
         res = CannyMatch(newSrc, template, method)
     return res, prePoint
 
@@ -111,7 +111,7 @@ for index, i in enumerate(imgDirList):
     curPoint = (prePoint[0] + 2*w, prePoint[1] + 2*h)
     minVal, maxVal, minLoc, maxLoc = cv.minMaxLoc(res)
     # 全局模版匹配
-    res2 = cv.matchTemplate(cannySrc, cannyTemplate, eval(methods[methodNum]))
+    res2 = CannyMatch(cannySrc, cannyTemplate, eval(methods[methodNum]))
     minVal2, maxVal2, minLoc2, maxLoc2 = cv.minMaxLoc(res2)
 
     if methods[methodNum] in [cv.TM_SQDIFF, cv.TM_SQDIFF_NORMED]:
@@ -135,7 +135,6 @@ for index, i in enumerate(imgDirList):
 
     kal.update(topLeft[0], topLeft[1])
 
-    cv.namedWindow(i)
-    cv.imshow(i, img)
+    cv.imshow(i,img)
     cv.waitKey(0)
 
