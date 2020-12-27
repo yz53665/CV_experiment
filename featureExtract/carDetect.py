@@ -4,11 +4,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 imgParDir = 'car/'
+svaeFileAs = 'detectCar'
 imgDirList = []
 for info in os.listdir(imgParDir):
     imgDirList.append(os.path.join(imgParDir, info))
 
-for i in imgDirList:
+for index, i in enumerate(imgDirList):
     src = cv.imread(i)
     hsv = cv.cvtColor(src, cv.COLOR_BGR2HSV)
 
@@ -42,3 +43,4 @@ for i in imgDirList:
     cv.waitKey(0)
     cv.imshow('car', src)
     cv.waitKey(0)
+    cv.imwrite(svaeFileAs + str(index) + '.png', src)
