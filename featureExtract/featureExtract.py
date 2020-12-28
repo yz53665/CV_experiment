@@ -11,10 +11,42 @@ def GetComplexity(area, length):
 imgA = cv.imread('divA.png', cv.IMREAD_GRAYSCALE)
 imgB = cv.imread('divB.png', cv.IMREAD_GRAYSCALE)
 
-disA, cntsA, hierA = cv.findContours(imgA, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_NONE)
-disB, cntsB, hierB = cv.findContours(imgB, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_NONE)
+disA, cntsA, hierA = cv.findContours(imgA, cv.RETR_CCOMP, cv.CHAIN_APPROX_NONE)
+disB, cntsB, hierB = cv.findContours(imgB, cv.RETR_CCOMP, cv.CHAIN_APPROX_NONE)
 
 # 计算欧拉数
+def CountHole(hier, idFirstChild):
+    if idFirstChild == -1:
+        return 0
+    nHole = 0
+    hole = hier[idFirstChild]
+    nHole += 1
+    while hole[0] != -1:
+        hole = hier[hole[0]]
+        nHole += 1
+    return nHole
+
+# 计算欧拉数,参数需要使用CCOMP方法作为参数的findControus来得到
+def GetEuler(hier):
+    nOutline = 0
+    nHole = 0
+    hier = hier[0]
+    for i in hier:
+        if i[2] == -1:
+            continue
+        nOutline += 1
+        idFirstChild= i[2]
+        nHole = CountHole(hier, idFirstChild)
+    return nOutline - nHole
+
+eulerA = GetEuler(hierA)
+eulerB = GetEuler(hierB)
+
+print('A的欧拉数: {}'.format(eulerA))
+print('B的欧拉数: {}'.format(eulerB))
+
+disA, cntsA, hierA = cv.findContours(imgA, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_NONE)
+disB, cntsB, hierB = cv.findContours(imgB, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_NONE)
 
 # 计算面积和周长
 areaA = cv.contourArea(cntsA[0])
