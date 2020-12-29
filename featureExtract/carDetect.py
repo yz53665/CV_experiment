@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 
 imgParDir = 'car/'
 svaeFileAs = 'detectCar'
+saveBinary = 'detectBinary'
 imgDirList = []
 for info in os.listdir(imgParDir):
     imgDirList.append(os.path.join(imgParDir, info))
@@ -44,3 +45,4 @@ for index, i in enumerate(imgDirList):
     cv.imshow('car', src)
     cv.waitKey(0)
     cv.imwrite(svaeFileAs + str(index) + '.png', src)
+    cv.imwrite(saveBinary + str(index) + '.png', redObjectImg)
