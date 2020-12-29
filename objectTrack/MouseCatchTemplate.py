@@ -71,6 +71,6 @@ def catchtemplate(Image):
     return template, mask
 
 if __name__ == '__main__':
-    src = cv2.imread('ExpPic/plane/P000.bmp')
+    src = cv2.imread('ExpPic/car/473.bmp')
     catchtemplate(src)
 
