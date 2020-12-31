@@ -2,6 +2,7 @@
 实现基于边缘投影的特征提取
 '''
 from MouseCatchTemplate import catchtemplate
+import matplotlib.pyplot as plt
 import numpy as np
 import cv2 as cv
 import os
@@ -15,10 +16,12 @@ imgDirList = []
 methods = ['cv.TM_CCOEFF', 'cv.TM_CCOEFF_NORMED', 'cv.TM_CCORR',
            'cv.TM_CCORR_NORMED', 'cv.TM_SQDIFF', 'cv.TM_SQDIFF_NORMED']
 
+
 def Projection(img):
     projectX = np.sum(img, axis=0)
     projectY = np.sum(img, axis=1)
     return (projectX, projectY)
+
 
 def MatchFuncs_1D(src, template, methodNum):
     fun = 0
@@ -32,6 +35,7 @@ def MatchFuncs_1D(src, template, methodNum):
         fun = np.sum(template * src)
     return fun
 
+
 def MatchTemplate(src, template, methodNum):
     w, h = template.shape[::-1]
     W, H = src.shape[::-1]
@@ -40,8 +44,10 @@ def MatchTemplate(src, template, methodNum):
     for i in range(H - h):
         for j in range(W - w):
             srcX, srcY = Projection(src[i:i+h, j:j+w])
-            mask[i, j] = MatchFuncs_1D(srcX, templateX, methodNum) + MatchFuncs_1D(srcY, templateY, methodNum)
+            mask[i, j] = MatchFuncs_1D(srcX, templateX, methodNum) +\
+                         MatchFuncs_1D(srcY, templateY, methodNum)
     return mask
+
 
 for info in os.listdir(imgParDir):
     imgDirList.append(os.path.join(imgParDir, info))
@@ -57,7 +63,16 @@ grayTemplate = cv.cvtColor(template, cv.COLOR_BGR2GRAY)
 cannyTemplate = cv.Canny(grayTemplate, 50, 150)
 w, h = grayTemplate.shape[::-1]
 
-for i in imgDirList:
+templateX, templateY = Projection(cannyTemplate)
+plt.title('模版沿x、y轴投影图')
+plt.subplot(121)
+plt.plot(list(range(len(templateX))), templateX.ravel())
+plt.xlabel('x')
+plt.subplot(122)
+plt.plot(list(range(len(templateY))), templateY.ravel())
+plt.xlabel('y')
+plt.show()
+for index, i in enumerate(imgDirList):
     img = cv.imread(i)
     gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
     cannySrc = cv.Canny(gray, 50, 150)
@@ -74,8 +89,6 @@ for i in imgDirList:
 
     cv.rectangle(img, topLeft, bottomRight, (0, 255, 0), 1)
 
-    cv.namedWindow('grey')
-    cv.imshow('grey', res)
-    cv.waitKey(0)
     cv.imshow(i, img)
+    cv.imwrite('project/img' + str(index) + '.png', img)
     cv.waitKey(500)

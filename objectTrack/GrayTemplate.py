@@ -25,6 +25,7 @@ src = cv.imread(imgDirList[0])
 template, mask = catchtemplate(src)
 # template = cv.imread('template.png')
 grayTemplate = cv.cvtColor(template, cv.COLOR_BGR2GRAY)
+cv.imwrite('gray/grayTemplate.png', grayTemplate)
 
 
 # 提取模版宽和高
@@ -34,10 +35,11 @@ else:
     w, h = template[::-1]
 
 
-for i in imgDirList:
+for index, i in enumerate(imgDirList):
     # 对每一张图片进行全局模版匹配
     img = cv.imread(i)
     gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+    cv.imwrite('gray/gray' + str(index) + '.png', gray)
     res = cv.matchTemplate(gray, grayTemplate, eval(methods[methodNum]))
     cv.normalize(res, res, 0, 1, cv.NORM_MINMAX, -1)
     minVal, maxVal, minLoc, maxLoc = cv.minMaxLoc(res)
@@ -49,12 +51,13 @@ for i in imgDirList:
     bottomRight = (topLeft[0] + w, topLeft[1] + h)
 
     cv.rectangle(img, topLeft, bottomRight, (0, 255, 0), 1)
-   
+
     cv.namedWindow('grey')
     cv.imshow('grey', res)
-    cv.waitKey(500)
+    cv.normalize(res, res, 0, 255, cv.NORM_MINMAX)
+    cv.imwrite('gray/res' + str(index) + '.png', res)
     cv.namedWindow(i)
     cv.imshow(i, img)
+    cv.imwrite('gray/img' + str(index) + '.png', img)
     cv.waitKey(200)
-
 

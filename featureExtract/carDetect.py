@@ -23,9 +23,9 @@ for index, i in enumerate(imgDirList):
     mask1 = cv.inRange(hsv, lowBound1, upBound1)
     redObjectImg = mask0 + mask1
 
-    elementRllipse = cv.getStructuringElement(cv.MORPH_ELLIPSE,(3,3)) #使用5*5大小十字型的结构元
-    elementCross = cv.getStructuringElement(cv.MORPH_CROSS,(9,5)) #使用5*3大小十字型的结构元
-    redObjectImg = cv.morphologyEx(redObjectImg, cv.MORPH_OPEN, elementRllipse) #进行闭运算
+    elementRllipse = cv.getStructuringElement(cv.MORPH_ELLIPSE,(3,3)) #使用3*3大小椭圆型的结构元
+    elementCross = cv.getStructuringElement(cv.MORPH_CROSS,(9,5)) #使用9*5大小十字型的结构元
+    redObjectImg = cv.morphologyEx(redObjectImg, cv.MORPH_OPEN, elementRllipse) #进行开运算
     redObjectImg = cv.morphologyEx(redObjectImg, cv.MORPH_DILATE, elementCross) #进行2次膨胀运算
     redObjectImg = cv.morphologyEx(redObjectImg, cv.MORPH_DILATE, elementCross) 
 

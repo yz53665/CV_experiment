@@ -14,7 +14,7 @@ imgB = cv.imread('divB.png', cv.IMREAD_GRAYSCALE)
 disA, cntsA, hierA = cv.findContours(imgA, cv.RETR_CCOMP, cv.CHAIN_APPROX_NONE)
 disB, cntsB, hierB = cv.findContours(imgB, cv.RETR_CCOMP, cv.CHAIN_APPROX_NONE)
 
-# 计算欧拉数
+# 计算孔的数量
 def CountHole(hier, idFirstChild):
     if idFirstChild == -1:
         return 0
@@ -35,8 +35,8 @@ def GetEuler(hier):
         if i[2] == -1:
             continue
         nOutline += 1
-        idFirstChild= i[2]
-        nHole = CountHole(hier, idFirstChild)
+        idFirstChild = i[2]
+        nHole += CountHole(hier, idFirstChild)
     return nOutline - nHole
 
 eulerA = GetEuler(hierA)

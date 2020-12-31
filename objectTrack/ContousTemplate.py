@@ -24,14 +24,16 @@ imgDirList.sort()
 template = cv.imread('template.png')
 grayTemplate = cv.cvtColor(template, cv.COLOR_BGR2GRAY)
 templateBinary = cv.Canny(grayTemplate, 50, 150)
+cv.imwrite('canny/binTemplate.png', templateBinary)
 cv.imshow('template', templateBinary)
 cv.waitKey(0)
 
-for i in imgDirList:
+for index, i in enumerate( imgDirList):
     img = cv.imread(i)
     gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
     srcBinary = cv.Canny(gray, 50, 150)
     cv.imshow('src', srcBinary)
+    cv.imwrite('canny/bin' + str(index) + '.png', srcBinary)
     cv.waitKey(0)
     
     res = cv.matchTemplate(srcBinary, templateBinary, eval(methods[methodNum]))
@@ -52,5 +54,6 @@ for i in imgDirList:
     cv.imshow('grey', res)
     cv.namedWindow(i)
     cv.imshow(i, img)
+    cv.imwrite('canny/img' + str(index) + '.png', img)
     cv.waitKey(0)
 
