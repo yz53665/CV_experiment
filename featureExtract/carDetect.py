@@ -1,7 +1,8 @@
 import os
-import cv2 as cv 
-import numpy as np 
+
+import cv2 as cv
 import matplotlib.pyplot as plt
+import numpy as np
 
 imgParDir = 'car/'
 svaeFileAs = 'detectCar'
@@ -23,10 +24,10 @@ for index, i in enumerate(imgDirList):
     mask1 = cv.inRange(hsv, lowBound1, upBound1)
     redObjectImg = mask0 + mask1
 
-    elementRllipse = cv.getStructuringElement(cv.MORPH_ELLIPSE,(3,3)) #使用3*3大小椭圆型的结构元
-    elementCross = cv.getStructuringElement(cv.MORPH_CROSS,(9,5)) #使用9*5大小十字型的结构元
+    elementRllipse = cv.getStructuringElement(cv.MORPH_ELLIPSE,(3,3)) #使用 3*3 大小椭圆型的结构元
+    elementCross = cv.getStructuringElement(cv.MORPH_CROSS,(9,5)) #使用 9*5 大小十字型的结构元
     redObjectImg = cv.morphologyEx(redObjectImg, cv.MORPH_OPEN, elementRllipse) #进行开运算
-    redObjectImg = cv.morphologyEx(redObjectImg, cv.MORPH_DILATE, elementCross) #进行2次膨胀运算
+    redObjectImg = cv.morphologyEx(redObjectImg, cv.MORPH_DILATE, elementCross) #进行 2 次膨胀运算
     redObjectImg = cv.morphologyEx(redObjectImg, cv.MORPH_DILATE, elementCross) 
 
     dis, cnts, hier = cv.findContours(redObjectImg, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_NONE)

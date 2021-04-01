@@ -1,7 +1,7 @@
 '''
 实现基于Canny算子的边缘轮廓特征的模版匹配
 '''
-from MouseCatchTemplate import catchtemplate
+from MouseCatchTemplate import catchTemplate
 import matplotlib.pyplot as plt
 import numpy as np
 import cv2 as cv
@@ -20,7 +20,7 @@ for info in os.listdir(imgParDir):
     imgDirList.append(os.path.join(imgParDir, info))
 imgDirList.sort()
 
-# template = catchtemplate(src)
+# template = catchTemplate(src)
 template = cv.imread('template.png')
 grayTemplate = cv.cvtColor(template, cv.COLOR_BGR2GRAY)
 templateBinary = cv.Canny(grayTemplate, 50, 150)

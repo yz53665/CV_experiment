@@ -1,15 +1,16 @@
 # Python 2/3 compatibility
 import sys
+
 PY3 = sys.version_info[0] == 3
 
 if PY3:
     long = int
 
-import numpy as np
-import cv2 as cv
-
 from math import cos, sin, sqrt
+
+import cv2 as cv
 import numpy as np
+
 
 def main():
     img_height = 500

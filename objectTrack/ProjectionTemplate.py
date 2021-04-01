@@ -1,7 +1,7 @@
 '''
 实现基于边缘投影的特征提取
 '''
-from MouseCatchTemplate import catchtemplate
+from MouseCatchTemplate import catchTemplate
 import matplotlib.pyplot as plt
 import numpy as np
 import cv2 as cv
@@ -55,7 +55,7 @@ imgDirList.sort()
 imgDirList = imgDirList[0:int(imgNum)]
 
 src = cv.imread(imgDirList[0])
-template, mask = catchtemplate(src)
+template, mask = catchTemplate(src)
 # template = cv.imread('template.png')
 
 # 获取模版的边缘

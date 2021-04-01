@@ -1,7 +1,7 @@
 '''
 手动选择模版，实现基于灰度的模版匹配方法
 '''
-from MouseCatchTemplate import catchtemplate
+from MouseCatchTemplate import catchTemplate
 import numpy as np
 import cv2 as cv
 import os
@@ -22,7 +22,7 @@ imgDirList.sort()
 imgDirList = imgDirList[0:int(imgNum)]
 
 src = cv.imread(imgDirList[0])
-template, mask = catchtemplate(src)
+template, mask = catchTemplate(src)
 # template = cv.imread('template.png')
 grayTemplate = cv.cvtColor(template, cv.COLOR_BGR2GRAY)
 cv.imwrite('gray/grayTemplate.png', grayTemplate)

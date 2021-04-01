@@ -1,7 +1,7 @@
 '''
 实现基于sobel算子的边缘特征的模版匹配
 '''
-from MouseCatchTemplate import catchtemplate
+from MouseCatchTemplate import catchTemplate
 import matplotlib.pyplot as plt
 import numpy as np
 import cv2 as cv
@@ -37,7 +37,7 @@ for info in os.listdir(imgParDir):
 imgDirList.sort()
 
 src = cv.imread(imgDirList[0])
-# template = catchtemplate(src)
+# template = catchTemplate(src)
 template = cv.imread('template.png')
 sobelTemplate = SobelNormalize(template)
 
