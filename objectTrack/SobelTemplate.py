@@ -1,11 +1,13 @@
 '''
 实现基于sobel算子的边缘特征的模版匹配
 '''
-from MouseCatchTemplate import catchTemplate
+import os
+
+import cv2 as cv
 import matplotlib.pyplot as plt
 import numpy as np
-import cv2 as cv
-import os
+
+from MouseCatchTemplate import TemplateCatcher
 
 imgNum = input('请输入检测图片的数量：')
 methodNum = input('请输入检测函数编号（0-5）:')
@@ -37,8 +39,10 @@ for info in os.listdir(imgParDir):
 imgDirList.sort()
 
 src = cv.imread(imgDirList[0])
-# template = catchTemplate(src)
-template = cv.imread('template.png')
+catcher = TemplateCatcher()
+catcher.catchTemplateFrom(src)
+template = catcher.getTemplate()
+
 sobelTemplate = SobelNormalize(template)
 
 # 获取模版的边缘

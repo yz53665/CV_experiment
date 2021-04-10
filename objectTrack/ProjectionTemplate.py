@@ -1,11 +1,13 @@
 '''
 实现基于边缘投影的特征提取
 '''
-from MouseCatchTemplate import catchTemplate
+import os
+
+import cv2 as cv
 import matplotlib.pyplot as plt
 import numpy as np
-import cv2 as cv
-import os
+
+from MouseCatchTemplate import TemplateCatcher
 
 imgNum = input('请输入检测图片的数量:')
 methodNum = input('请输入检测函数编号（0-1）:')
@@ -55,8 +57,10 @@ imgDirList.sort()
 imgDirList = imgDirList[0:int(imgNum)]
 
 src = cv.imread(imgDirList[0])
-template, mask = catchTemplate(src)
-# template = cv.imread('template.png')
+catcher = TemplateCatcher()
+catcher.catchTemplateFrom(src)
+template = catcher.getTemplate()
+mask = catcher.getMask()
 
 # 获取模版的边缘
 grayTemplate = cv.cvtColor(template, cv.COLOR_BGR2GRAY)

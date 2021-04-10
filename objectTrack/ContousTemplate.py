@@ -1,11 +1,13 @@
 '''
 实现基于Canny算子的边缘轮廓特征的模版匹配
 '''
-from MouseCatchTemplate import catchTemplate
+import os
+
+import cv2 as cv
 import matplotlib.pyplot as plt
 import numpy as np
-import cv2 as cv
-import os
+
+from MouseCatchTemplate import TemplateCatcher
 
 imgNum = input('请输入检测图片的数量：')
 methodNum = input('请输入检测函数编号（0-5）:')
@@ -20,8 +22,11 @@ for info in os.listdir(imgParDir):
     imgDirList.append(os.path.join(imgParDir, info))
 imgDirList.sort()
 
-# template = catchTemplate(src)
-template = cv.imread('template.png')
+
+catcher = TemplateCatcher()
+catcher.catchTemplateFrom(src)
+template = catcher.getTemplate()
+
 grayTemplate = cv.cvtColor(template, cv.COLOR_BGR2GRAY)
 templateBinary = cv.Canny(grayTemplate, 50, 150)
 cv.imwrite('canny/binTemplate.png', templateBinary)
@@ -35,7 +40,7 @@ for index, i in enumerate( imgDirList):
     cv.imshow('src', srcBinary)
     cv.imwrite('canny/bin' + str(index) + '.png', srcBinary)
     cv.waitKey(0)
-    
+
     res = cv.matchTemplate(srcBinary, templateBinary, eval(methods[methodNum]))
     cv.normalize(res, res, 0, 1, cv.NORM_MINMAX, -1)
     minVal, maxVal, minLoc, maxLoc = cv.minMaxLoc(res)

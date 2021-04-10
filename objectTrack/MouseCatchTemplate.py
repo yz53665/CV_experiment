@@ -10,149 +10,101 @@ import numpy as np
 
 class TemplateCatcher:
     def __init__(self):
-        self.srcImg = None
-        self.tmpImg = None
-        self.prePoint = None
-        self.curPoint = None
-        self.template = None
-        self.mask = None
-        self.x = None
-        self.y = None
-        self.event = None
-        self.flags = None
-        self.mouseResponse = [self.__drawCircle, self.__confirmTemplate,
-                              self.__drawRectangle,
-                              self.__finishedRectangle]
+        self.__srcImg = None
+        self.__tmpImg = None
+        self.__prePoint = None
+        self.__curPoint = None
+        self.__template = None
+        self.__mask = None
+        self.__templateConfirmed = False
 
     def catchTemplateFrom(self, srcImg):
         self.__setSrcImgFrom(srcImg)
+        self.__testSrcImg()
         self.__catchTemplate()
         self.__showResult()
-        self.__saveResult()
 
     def __setSrcImgFrom(self, srcImg):
-        self.srcImg = srcImg
-        self.testSrcImg()
+        self.__srcImg = srcImg
 
-    def testSrcImg(self):
+    def __testSrcImg(self):
         if self.__unableToReadSrcImg():
             print("error opening image!")
 
     def __unableToReadSrcImg(self):
-        return self.srcImg.size == 0
+        return self.__srcImg.size == 0
 
     def __catchTemplate(self):
         cv.namedWindow("catch template", cv.WINDOW_AUTOSIZE)
-        cv.setMouseCallback("catch template", self.mouseHandle)
+        cv.setMouseCallback("catch template", self.mouseControl)
+        cv.imshow("catch template", self.__srcImg)
+        while not self.__templateConfirmed:
+            cv.waitKey(30)
 
-    def mouseHandle(self, event, x, y, flags, usrDat):
-        self.__inalizeParameters(event, flags, self.x, self.y)
-        for fun in self.mouseResponse:
-            fun()
 
-    def __inalizeAllParameters(self, event, flags, x, y):
-        self.tmpImg = copy.copy(self.srcImg)
-        self.template = copy.copy(self.srcImg)
-        self.mask = np.zeros(self.srcImg.shape[0:2])
-        self.event = event
-        self.flags = flags
+    def mouseControl(self, event, x, y, flags, param):
+        self.__inalizeAllParameters()
+        if event is cv.EVENT_LBUTTONDOWN:
+            self.__drawCircle(x, y)
+        if event is cv.EVENT_RBUTTONUP:
+            self.__confirmTemplate()
+        if event is cv.EVENT_MOUSEMOVE and flags == cv.EVENT_FLAG_LBUTTON:
+            self.__drawRectangle(x, y)
+        if event is cv.EVENT_LBUTTONUP:
+            self.__finishedRectangle(x, y)
+
+    def __inalizeAllParameters(self):
+        self.__tmpImg = copy.copy(self.__srcImg)
+        self.__template = copy.copy(self.__srcImg)
+        self.__mask = np.zeros(self.__srcImg.shape[0:2])
+
+    def __drawCircle(self, x, y):
+        self.__prePoint = (int(x), int(y))
+        self.__tmpImg = cv.circle(self.__tmpImg, self.__prePoint, 2, (255, 0, 0),
+                                cv.FILLED, cv.LINE_AA, 0)
+        cv.imshow('catch template', self.__tmpImg)
+
+
+    def __confirmTemplate(self):
+            x1, y1 = self.__prePoint
+            x2, y2 = self.__curPoint
+            self.__template = self.__template[y1:y2, x1:x2]
+            cv.rectangle(self.__mask, self.__prePoint, self.__curPoint, (255, 255, 255),
+                         cv.FILLED, cv.LINE_AA)
+            self.__templateConfirmed = True
+
+    def __drawRectangle(self, x, y):
+            self.__curPoint = (int(x),int(y))
+            self.__tmpImg = cv.rectangle(self.__tmpImg, self.__prePoint, self.__curPoint,
+                                  (0, 255, 0))
+            cv.imshow('catch template', self.__tmpImg)
+
+    def __finishedRectangle(self, x, y):
+            # 鼠标左键抬起，画出图像
+            self.__curPoint = (int(x),int(y))
+            self.__tmpImg =  cv.circle(self.__tmpImg, self.__prePoint, 2, (255, 0, 0),
+                                     cv.FILLED, cv.LINE_AA, 0)
+            self.__tmpImg = cv.rectangle(self.__tmpImg, self.__prePoint, self.__curPoint,
+                                  (0, 255, 0))
+            cv.imshow('catch template', self.__tmpImg)
 
     def __showResult(self):
-        cv.imshow("srcImg", self.srcImg)
+        cv.imshow("template", self.__template)
         cv.waitKey(0)
-        cv.imshow("template", self.template)
-        cv.waitKey(0)
-        cv.imshow("mask", self.mask)
+        cv.imshow("mask", self.__mask)
         cv.waitKey(0)
 
-    def __saveResult(self):
-        cv.imwrite("template.png", self.template)
-        cv.imwrite("mask.png", self.mask)
+    def saveResult(self, dateType=np.uint8):
+        cv.imwrite("template.png", self.__template.astype(dateType))
+        cv.imwrite("mask.png", self.__mask.astype(dateType))
 
-    def __drawCircle(self):
-        if self.event is cv.EVENT_LBUTTONDOWN:
-            self.prePoint = (int(self.x), int(self.y))
-            self.tmpImg = cv.circle(self.tmpImg, self.prePoint, 2, (255, 0, 0),
-                                    cv.FILLED, cv.LINE_AA, 0)
-            cv.imshow('source', self.tmpImg)
+    def getTemplate(self, dateType=np.uint8):
+        return self.__template.astype(dateType)
 
-    def __confirmTemplate(self, event):
-        if self.event is cv.EVENT_RBUTTONUP:
-            x1, y1 = self.prePoint
-            x2, y2 = self.curPoint
-            template = template[y1:y2, x1:x2]
-            cv.rectangle(mask, self.prePoint, self.curPoint, (255, 255, 255),
-                         cv.FILLED, cv.LINE_AA)
+    def getMask(self, dateType=np.uint8):
+        return self.__template.astype(dateType)
 
-    def __drawRectangle(self):
-        if self.event is cv.EVENT_MOUSEMOVE and self.flags == cv.EVENT_FLAG_LBUTTON:
-            self.curPoint = (int(self.x),int(self.y))
-            self.tmpImg = cv.rectangle(self.tmpImg, self.prePoint, self.curPoint,
-                                  (0, 255, 0))
-            cv.imshow('source', self.tmpImg)
-
-    def __finishedRectangle(self):
-        if self.event is cv.EVENT_LBUTTONUP:
-            # 鼠标左键抬起，画出图像
-            self.curPoint = (int(self.x),int(self.y))
-            self.tmpImg =  cv.circle(self.tmpImg, self.prePoint, 2, (255, 0, 0),
-                                     cv.FILLED, cv.LINE_AA, 0)
-            self.tmpImg = cv.rectangle(self.tmpImg, self.prePoint, self.curPoint,
-                                  (0, 255, 0))
-            cv.imshow('source', self.tmpImg)
-
-
-def mousehandle(event, x, y, flags, usrDat):
-    img = copy.copy(src)
-    tmpImg = copy.copy(src)
-    template = copy.copy(src)
-    mask = np.zeros(src.shape[0:2])
-    if event is cv.EVENT_LBUTTONDOWN:
-        img = copy.copy(src)
-        prePoint = (int(x),int(y))
-        img =  cv.circle(img, prePoint, 2, (255, 0, 0), cv.FILLED, cv.LINE_AA, 0)
-        cv.imshow('source',img)
-    elif event is cv.EVENT_RBUTTONUP:
-        # 如果鼠标右键松开，则确认模版
-        x1, y1 = prePoint
-        x2, y2 = curPoint
-        template = template[y1:y2, x1:x2]
-        cv.rectangle(mask, prePoint, curPoint, (255, 255, 255), cv.FILLED,
-                     cv.LINE_AA)
-    elif event is cv.EVENT_MOUSEMOVE and flags == cv.EVENT_FLAG_LBUTTON:
-        # 如果鼠标左键被按下且鼠标在移动, 在图像上画矩形
-        tmpImg = copy.copy(src)
-        curPoint = (int(x),int(y))
-        tmpImg = cv.rectangle(tmpImg, prePoint, curPoint, (0, 255, 0))
-        cv.imshow('source', tmpImg)
-    elif event is cv.EVENT_LBUTTONUP:
-        # 鼠标左键抬起，画出图像
-        img = copy.copy(src)
-        curPoint = (int(x),int(y))
-        img =  cv.circle(img, prePoint, 2, (255, 0, 0), cv.FILLED, cv.LINE_AA, 0)
-        tmpImg = cv.rectangle(tmpImg, prePoint, curPoint, (0, 255, 0))
-        cv.imshow('source', tmpImg)
-
-# 实现手动提取模版
-def catchTemplate(Image):
-    global src
-    global mask
-    global template
-    src = Image
-    if src.size == 0:
-        print("error opining image" )
-        return
-    cv.namedWindow('source', cv.WINDOW_AUTOSIZE)
-    cv.setMouseCallback('source', mousehandle)
-    cv.imshow('source', src)
-    cv.waitKey(0)
-    cv.imshow('mask', mask)
-    cv.waitKey(0)
-    cv.destroyAllWindows()
-    mask = mask.astype(np.uint8)
-    return template, mask
-
-
-src = cv.imread('ExpPic/car/473.bmp')
-catcher = TemplateCatcher()
-catcher.catchTemplateFrom(src)
+if __name__ == "__main__":
+    src = cv.imread('ExpPic/car/473.bmp')
+    catcher = TemplateCatcher()
+    catcher.catchTemplateFrom(src)

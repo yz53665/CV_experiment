@@ -1,10 +1,12 @@
 '''
 手动选择模版，实现基于灰度的模版匹配方法
 '''
-from MouseCatchTemplate import catchTemplate
-import numpy as np
-import cv2 as cv
 import os
+
+import cv2 as cv
+import numpy as np
+
+from MouseCatchTemplate import TemplateCatcher
 
 imgNum = input('请输入检测图片的数量：')
 methodNum = input('请输入检测函数编号（0-5）:')
