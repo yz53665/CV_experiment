@@ -1,8 +1,17 @@
 '''
 实现手动选取并保存模版
+
+@操作：
+    按下鼠标左键并拖动选择模板区域, 松开后再次按下可重复选择
+    按下鼠标右键确认当前选择的模板, 模板将保存在TamplateCatcher的实例化对象中
+    获取模板后可以使用getTemplate/getMask方法获取模板, 或者使用save方法保存模板
+@实例：
+    from MouseCatchTemplate import TemplateCatcher
+    catcher = TemplateCatcher()
+    catcher.catchTemplateFrom(src)
+    template = catcher.getTemplate()
 '''
 import copy
-from sys import argv
 
 import cv2 as cv
 import numpy as np
@@ -19,6 +28,9 @@ class TemplateCatcher:
         self.__templateConfirmed = False
 
     def catchTemplateFrom(self, srcImg):
+        '''
+        启动模板捕捉窗口
+        '''
         self.__setSrcImgFrom(srcImg)
         self.__testSrcImg()
         self.__catchTemplate()
@@ -36,13 +48,13 @@ class TemplateCatcher:
 
     def __catchTemplate(self):
         cv.namedWindow("catch template", cv.WINDOW_AUTOSIZE)
-        cv.setMouseCallback("catch template", self.mouseControl)
+        cv.setMouseCallback("catch template", self.__mouseControl)
         cv.imshow("catch template", self.__srcImg)
         while not self.__templateConfirmed:
             cv.waitKey(30)
 
 
-    def mouseControl(self, event, x, y, flags, param):
+    def __mouseControl(self, event, x, y, flags, param):
         self.__inalizeAllParameters()
         if event is cv.EVENT_LBUTTONDOWN:
             self.__drawCircle(x, y)
@@ -94,15 +106,25 @@ class TemplateCatcher:
         cv.imshow("mask", self.__mask)
         cv.waitKey(0)
 
-    def saveResult(self, dateType=np.uint8):
+    def save(self, dateType=np.uint8):
+        '''
+        保存template 和 mask 到当前文件夹下, 默认保存的数据格式为np.uint8
+        '''
         cv.imwrite("template.png", self.__template.astype(dateType))
         cv.imwrite("mask.png", self.__mask.astype(dateType))
 
     def getTemplate(self, dateType=np.uint8):
+        '''
+        默认数据格式 np.uint8
+        '''
         return self.__template.astype(dateType)
 
     def getMask(self, dateType=np.uint8):
+        '''
+        默认数据格式 np.uint8
+        '''
         return self.__template.astype(dateType)
+
 
 if __name__ == "__main__":
     src = cv.imread('ExpPic/car/473.bmp')
